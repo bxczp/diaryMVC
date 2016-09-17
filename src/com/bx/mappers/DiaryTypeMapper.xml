@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bx.dao.DiaryTypeDao">
+
+	<resultMap type="DiaryType" id="DiaryTypeResult">
+		<result property="diaryTypeId" column="diaryTypeId" />
+		<result property="typeName" column="typeName" />
+		<result property="diaryCount" column="diaryCount" />
+	</resultMap>
+
+	<select id="find" resultMap="DiaryTypeResult">
+		select
+		t.diaryTypeId,t.typeName,count(*) as diaryCount from t_diaryType t
+		left join t_diary d on d.typeId=t.diaryTypeId group by typeName order
+		by t.diaryTypeId
+	</select>
+
+	<select id="getTypeNameById" resultType="String" parameterType="Integer">
+		select typeName from t_diaryType where diaryTypeId=#{id}
+	</select>
+
+	<select id="getDiaryTypeById" resultMap="DiaryTypeResult" parameterType="Integer">
+		select * from t_diaryType where diaryTypeId=#{id}
+	</select>
+
+	<update id="update" parameterType="DiaryType">
+		update t_diaryType
+		<set>
+			<if test="typeName!=null and typeName!=''">
+				typeName=#{typeName}
+			</if>
+		</set>
+		where diaryTypeId=#{diaryTypeId}
+	</update>
+
+	<insert id="add" parameterType="DiaryType">
+		insert into t_diaryType
+		values(null,#{typeName},null)
+	</insert>
+
+	<delete id="delete" parameterType="int">
+		delete from t_diaryType where
+		diaryTypeId=#{id}
+	</delete>
+</mapper>

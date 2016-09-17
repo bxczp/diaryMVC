@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bx.dao.DiaryDao">
+
+	<resultMap type="Diary" id="DiaryResult">
+		<result property="diaryId" column="diaryId" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="typeId" column="typeId" />
+		<result property="releaseDate" column="releaseDate" />
+		<result property="releaseDateStr" column="releaseDateStr" />
+		<result property="typeName" column="typeName" />
+		<result property="diaryCount" column="diaryCount" />
+	</resultMap>
+
+	<insert id="add" parameterType="Diary">
+		insert into t_diary
+		values(null,#{title},#{content},#{typeId},now(),null,null,null)
+	</insert>
+	
+	<update id="update" parameterType="Diary" >
+		update t_diary 
+		<set>
+			<if test="title!=null and title!=''">
+				title=#{title},
+			</if>
+			<if test="content!=null and content!=''">
+				content=#{content},
+			</if>
+			<if test="typeId!=null">
+				typeId=#{typeId},
+			</if>
+		</set>
+		where diaryId=#{diaryId}
+	</update>
+	
+	<delete id="delete" parameterType="int" >
+		delete from t_diary where diaryId=#{id}
+	</delete>
+
+	<select id="find" parameterType="Map" resultMap="DiaryResult">
+		select * from t_diary
+		<where>
+			<if test="s_title!=null and s_title !=''">
+				and title like #{s_title}
+			</if>
+			<if test="s_releaseDateStr !=null and s_releaseDateStr!=''">
+				and DATE_FORMAT(releaseDate,'%Y%m') like
+				#{s_releaseDateStr}
+			</if>
+			<if test="s_typeId !=null">
+				and typeId =#{s_typeId}
+			</if>
+		</where>
+		order by releaseDate desc
+		<if test="start !=null and size !=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+
+	<select id="getDiaryById" parameterType="Integer" resultMap="DiaryResult">
+		select * from t_diary where diaryId=#{id}
+	</select>
+
+	<select id="findByRelaseDate" resultMap="DiaryResult">
+		select
+		DATE_FORMAT(releaseDate,'%Y年%m月') as releaseDateStr,count(*) as
+		diaryCount from t_diary group by DATE_FORMAT(releaseDate,'%Y%m')
+	</select>
+
+	<select id="getListCount" parameterType="Map" resultType="Integer">
+		select count(*) from t_diary
+		<where>
+			<if test="s_title!=null and s_title !=''">
+				and title like #{s_title}
+			</if>
+			<if test="s_releaseDateStr !=null and s_releaseDateStr!=''">
+				and DATE_FORMAT(releaseDate,'%Y%m') like
+				#{s_releaseDateStr}
+			</if>
+			<if test="s_typeId !=null">
+				and typeId =#{s_typeId}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>
